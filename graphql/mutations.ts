@@ -1,27 +1,24 @@
 import { gql } from "@apollo/client"
 
+// เปลี่ยนจาก mutation เป็น query เพื่ออ่านข้อมูล user จาก database
 export const LOGIN_USER = gql`
-  mutation LoginUser($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      token
-      user {
-        id
-        email
-        name
-      }
+  query LoginUser($email: String!) {
+    users(where: { email: { _eq: $email } }, limit: 1) {
+      id
+      email
+      name
+      password_hash
     }
   }
 `
 
-export const REGISTER_USER = gql`
-  mutation RegisterUser($email: String!, $password: String!, $name: String!) {
-    register(email: $email, password: $password, name: $name) {
-      token
-      user {
-        id
-        email
-        name
-      }
+export const CREATE_USER = gql`
+  mutation CreateUser($email: String!, $name: String!, $password_hash: String!) {
+    insert_users_one(object: { email: $email, name: $name, password_hash: $password_hash }) {
+      id
+      email
+      name
+      created_at
     }
   }
 `

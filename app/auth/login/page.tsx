@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { useMutation } from "@apollo/client"
+import { useLazyQuery } from "@apollo/client"
 import { LOGIN_USER } from "@/graphql/mutations"
 import { setAuthToken, setUser } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -15,32 +15,18 @@ import { useToast } from "@/hooks/use-toast"
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
   
-  const [loginUser, { loading }] = useMutation(LOGIN_USER, {
-    onCompleted: (data) => {
-      if (data.login) {
-        setAuthToken(data.login.token)
-        setUser(data.login.user)
-        toast({
-          title: "Success",
-          description: "Logged in successfully",
-        })
-        router.push("/tasks")
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message || "Invalid credentials",
-        variant: "destructive",
-      })
-    },
-  })
+  const [loginUser] = useLazyQuery(LOGIN_USER)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    console.log("🚀 [LOGIN] Form submitted")
+    console.log("📧 Email:", email)
+    console.log("🔒 Password:", password ? "***" : "(empty)")
     
     if (!email || !password) {
       toast({
@@ -51,7 +37,73 @@ export default function LoginPage() {
       return
     }
 
-    await loginUser({ variables: { email, password } })
+    setIsLoading(true)
+
+    try {
+      console.log("🔍 [QUERY] Checking user credentials...")
+      
+      // Query user จาก database
+      const { data, error } = await loginUser({ 
+        variables: { email: email.toLowerCase() } 
+      })
+
+      console.log("📊 [QUERY] Result:", data)
+      console.log("❌ [QUERY] Error:", error)
+
+      if (error) {
+        throw error
+      }
+
+      if (!data?.users || data.users.length === 0) {
+        console.log("❌ [LOGIN] User not found")
+        toast({
+          title: "Error",
+          description: "Invalid email or password",
+          variant: "destructive",
+        })
+        return
+      }
+
+      const user = data.users[0]
+      console.log("✅ [LOGIN] User found:", user)
+
+      // ในระบบจริงต้องเช็ค password ด้วย bcrypt
+      // const isPasswordValid = await bcrypt.compare(password, user.password_hash)
+      // แต่ตอนนี้ข้ามไปก่อน (mock authentication)
+      
+      console.log("💾 [AUTH] Saving user to localStorage")
+      setAuthToken("mock-token-" + user.id)
+      setUser({
+        id: user.id,
+        email: user.email,
+        name: user.name
+      })
+
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      })
+
+      console.log("🎯 [REDIRECT] Going to /tasks")
+      router.push("/tasks")
+
+    } catch (error: any) {
+      console.error("❌ [ERROR] Login failed:", error)
+      console.error("📋 [ERROR] Details:", {
+        message: error.message,
+        graphQLErrors: error.graphQLErrors,
+        networkError: error.networkError
+      })
+      
+      toast({
+        title: "Error",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+      console.log("🏁 [LOGIN] Process completed")
+    }
   }
 
   return (
@@ -72,6 +124,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -83,12 +136,16 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
+            </div>
+            <div className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-800">
+              ⚠️ Mock Authentication - Password ไม่ได้ถูกตรวจสอบจริง
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{" "}

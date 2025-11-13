@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useMutation } from "@apollo/client"
-import { REGISTER_USER } from "@/graphql/mutations"
+import { CREATE_USER } from "@/graphql/mutations"
 import { setAuthToken, setUser } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,11 +20,23 @@ export default function RegisterPage() {
   const router = useRouter()
   const { toast } = useToast()
   
-  const [registerUser, { loading }] = useMutation(REGISTER_USER, {
+  const [createUser, { loading }] = useMutation(CREATE_USER, {
     onCompleted: (data) => {
-      if (data.register) {
-        setAuthToken(data.register.token)
-        setUser(data.register.user)
+      console.log("🚀 [REGISTER] onCompleted called")
+      console.log("📊 [REGISTER] data:", data)
+      
+      if (data.insert_users_one) {
+        const user = data.insert_users_one
+        console.log("✅ [REGISTER] User created:", user)
+        
+        // เก็บข้อมูล user
+        setAuthToken("mock-token-" + user.id)
+        setUser({
+          id: user.id,
+          email: user.email,
+          name: user.name
+        })
+        
         toast({
           title: "Success",
           description: "Account created successfully",
@@ -33,6 +45,12 @@ export default function RegisterPage() {
       }
     },
     onError: (error) => {
+      console.log("❌ [REGISTER] onError called")
+      console.log("📋 [REGISTER] error:", error)
+      console.log("📋 [REGISTER] error.message:", error.message)
+      console.log("📋 [REGISTER] error.graphQLErrors:", error.graphQLErrors)
+      console.log("📋 [REGISTER] error.networkError:", error.networkError)
+      
       toast({
         title: "Error",
         description: error.message || "Registration failed",
@@ -43,6 +61,11 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    console.log("🚀 [REGISTER] Form submitted")
+    console.log("📧 Email:", email)
+    console.log("👤 Name:", name)
+    console.log("🔒 Password:", password ? "***" : "(empty)")
     
     if (!name || !email || !password || !confirmPassword) {
       toast({
@@ -71,7 +94,20 @@ export default function RegisterPage() {
       return
     }
 
-    await registerUser({ variables: { name, email, password } })
+    console.log("➕ [REGISTER] Calling CREATE_USER mutation...")
+    console.log("📝 [REGISTER] Variables:", { 
+      name, 
+      email: email.toLowerCase(), 
+      password_hash: "mock_password_not_used"
+    })
+    
+    await createUser({ 
+      variables: { 
+        name, 
+        email: email.toLowerCase(), 
+        password_hash: password, // ส่ง password_hash ไปด้วย
+      } 
+    })
   }
 
   return (
