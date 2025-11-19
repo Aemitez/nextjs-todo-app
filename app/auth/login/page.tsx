@@ -38,7 +38,7 @@ export default function LoginPage() {
     try {
       // Query user จาก database
       const { data, error } = await loginUser({ 
-        variables: { email: email.toLowerCase() } 
+        variables: { email: email.toLowerCase(),pass: password } 
       })
 
       if (error) {
