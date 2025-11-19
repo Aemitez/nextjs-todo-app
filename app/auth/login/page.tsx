@@ -24,10 +24,6 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    console.log("🚀 [LOGIN] Form submitted")
-    console.log("📧 Email:", email)
-    console.log("🔒 Password:", password ? "***" : "(empty)")
-    
     if (!email || !password) {
       toast({
         title: "Validation Error",
@@ -40,22 +36,16 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      console.log("🔍 [QUERY] Checking user credentials...")
-      
       // Query user จาก database
       const { data, error } = await loginUser({ 
         variables: { email: email.toLowerCase() } 
       })
-
-      console.log("📊 [QUERY] Result:", data)
-      console.log("❌ [QUERY] Error:", error)
 
       if (error) {
         throw error
       }
 
       if (!data?.users || data.users.length === 0) {
-        console.log("❌ [LOGIN] User not found")
         toast({
           title: "Error",
           description: "Invalid email or password",
@@ -65,13 +55,11 @@ export default function LoginPage() {
       }
 
       const user = data.users[0]
-      console.log("✅ [LOGIN] User found:", user)
 
       // ในระบบจริงต้องเช็ค password ด้วย bcrypt
       // const isPasswordValid = await bcrypt.compare(password, user.password_hash)
       // แต่ตอนนี้ข้ามไปก่อน (mock authentication)
       
-      console.log("💾 [AUTH] Saving user to localStorage")
       setAuthToken("mock-token-" + user.id)
       setUser({
         id: user.id,
@@ -84,7 +72,6 @@ export default function LoginPage() {
         description: "Logged in successfully",
       })
 
-      console.log("🎯 [REDIRECT] Going to /tasks")
       router.push("/tasks")
 
     } catch (error: any) {
@@ -102,7 +89,6 @@ export default function LoginPage() {
       })
     } finally {
       setIsLoading(false)
-      console.log("🏁 [LOGIN] Process completed")
     }
   }
 
@@ -138,9 +124,6 @@ export default function LoginPage() {
                 required
                 disabled={isLoading}
               />
-            </div>
-            <div className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-800">
-              ⚠️ Mock Authentication - Password ไม่ได้ถูกตรวจสอบจริง
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
