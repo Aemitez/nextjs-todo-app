@@ -18,12 +18,12 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  
+
   const [loginUser] = useLazyQuery(LOGIN_USER)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!email || !password) {
       toast({
         title: "Validation Error",
@@ -37,8 +37,8 @@ export default function LoginPage() {
 
     try {
       // Query user จาก database
-      const { data, error } = await loginUser({ 
-        variables: { email: email.toLowerCase(),pass: password } 
+      const { data, error } = await loginUser({
+        variables: { email: email.toLowerCase(), pass: password }
       })
 
       if (error) {
@@ -59,7 +59,7 @@ export default function LoginPage() {
       // ในระบบจริงต้องเช็ค password ด้วย bcrypt
       // const isPasswordValid = await bcrypt.compare(password, user.password_hash)
       // แต่ตอนนี้ข้ามไปก่อน (mock authentication)
-      
+
       setAuthToken("mock-token-" + user.id)
       setUser({
         id: user.id,
@@ -81,7 +81,7 @@ export default function LoginPage() {
         graphQLErrors: error.graphQLErrors,
         networkError: error.networkError
       })
-      
+
       toast({
         title: "Error",
         description: error.message || "Invalid credentials",
@@ -96,8 +96,8 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Enter your credentials to access your account</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">Todo by Aemitez</CardTitle>
+          <CardDescription className="text-center">Create a new account to get started</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">

@@ -25,7 +25,7 @@ export default function TasksPage() {
     setMounted(true)
     const userData = getUser()
     setUser(userData)
-    
+
     if (!isAuthenticated()) {
       router.push("/auth/login")
     }
@@ -39,12 +39,12 @@ export default function TasksPage() {
       "July", "August", "September", "October", "November", "December"
     ]
     const englishDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    
+
     const dayName = englishDays[currentDate.getDay()]
     const day = currentDate.getDate().toString()
     const month = englishMonths[currentDate.getMonth()]
     const year = currentDate.getFullYear().toString()
-    
+
     setDateData({ day, dayName, month, year })
   }, [])
 
@@ -124,6 +124,9 @@ export default function TasksPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow">
         <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="flex justify-between items-center mb-4 border-b pb-2">
+            <h1 className="text-xl font-bold text-primary">Todo by Aemitez</h1>
+          </div>
           <div className="flex justify-between items-center">
             {/* Date Display */}
             <div className="flex items-center gap-2 sm:gap-4">
@@ -139,7 +142,7 @@ export default function TasksPage() {
                 </>
               )}
             </div>
-            
+
             {/* User Info & Logout */}
             <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
@@ -159,11 +162,11 @@ export default function TasksPage() {
           <h2 className="text-base sm:text-lg md:text-xl font-semibold">
             {data?.tasks?.length || 0} Tasks Total
           </h2>
-          <button 
+          <button
             onClick={() => setIsDialogOpen(true)}
             className="flex items-center gap-1 sm:gap-2 md:gap-3 group"
           >
-            <div 
+            <div
               className="w-10 h-10 sm:w-14 sm:h-14 md:w-14 md:h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:opacity-90"
               style={{ backgroundColor: "#e145e5" }}
             >

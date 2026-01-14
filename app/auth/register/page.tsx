@@ -19,16 +19,16 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const router = useRouter()
   const { toast } = useToast()
-  
+
   const [createUser, { loading }] = useMutation(CREATE_USER, {
     onCompleted: (data) => {
       console.log("🚀 [REGISTER] onCompleted called")
       console.log("📊 [REGISTER] data:", data)
-      
+
       if (data.insert_users_one) {
         const user = data.insert_users_one
         console.log("✅ [REGISTER] User created:", user)
-        
+
         // เก็บข้อมูล user
         setAuthToken("mock-token-" + user.id)
         setUser({
@@ -36,7 +36,7 @@ export default function RegisterPage() {
           email: user.email,
           name: user.name
         })
-        
+
         toast({
           title: "Success",
           description: "Account created successfully",
@@ -50,7 +50,7 @@ export default function RegisterPage() {
       console.log("📋 [REGISTER] error.message:", error.message)
       console.log("📋 [REGISTER] error.graphQLErrors:", error.graphQLErrors)
       console.log("📋 [REGISTER] error.networkError:", error.networkError)
-      
+
       toast({
         title: "Error",
         description: error.message || "Registration failed",
@@ -61,12 +61,12 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     console.log("🚀 [REGISTER] Form submitted")
     console.log("📧 Email:", email)
     console.log("👤 Name:", name)
     console.log("🔒 Password:", password ? "***" : "(empty)")
-    
+
     if (!name || !email || !password || !confirmPassword) {
       toast({
         title: "Validation Error",
@@ -95,18 +95,18 @@ export default function RegisterPage() {
     }
 
     console.log("➕ [REGISTER] Calling CREATE_USER mutation...")
-    console.log("📝 [REGISTER] Variables:", { 
-      name, 
-      email: email.toLowerCase(), 
+    console.log("📝 [REGISTER] Variables:", {
+      name,
+      email: email.toLowerCase(),
       password_hash: "mock_password_not_used"
     })
-    
-    await createUser({ 
-      variables: { 
-        name, 
-        email: email.toLowerCase(), 
+
+    await createUser({
+      variables: {
+        name,
+        email: email.toLowerCase(),
         password_hash: password, // ส่ง password_hash ไปด้วย
-      } 
+      }
     })
   }
 
@@ -114,8 +114,8 @@ export default function RegisterPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Create a new account to get started</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">Todo by Aemitez</CardTitle>
+          <CardDescription className="text-center">Create a new account to get started</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
